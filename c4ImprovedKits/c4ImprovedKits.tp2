@@ -5,9 +5,7 @@ VERSION ~v1.0~
 
 AUTO_EVAL_STRINGS
 
-AUTO_TRA ~%MOD_FOLDER%/lang/%s~
-
-README ~%MOD_FOLDER%/lang/%LANGUAGE%/readme.pdf~
+README ~c4ImprovedKits/lang/%LANGUAGE%/readme.pdf~
 
 ALWAYS
 
