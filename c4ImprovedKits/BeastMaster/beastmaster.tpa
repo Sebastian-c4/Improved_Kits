@@ -1,0 +1,194 @@
+DEFINE_ACTION_FUNCTION BeastMaster BEGIN
+
+	OUTER_TEXT_SPRINT com_root ~%mod_root%/BeastMaster~	
+	// INCLUDE ~%com_root%/remove_old.tpa~
+
+	//复制文件
+	COPY ~%com_root%/itm~ override
+	COPY ~%com_root%/spl~ override
+
+	//五星棍棒手杖
+	COPY_EXISTING weapprof.2da override
+		COUNT_2DA_COLS cols
+		cols_new = cols - 1
+		READ_2DA_ENTRIES_NOW rows cols_new
+		FOR (i=0;i<cols_new;++i) BEGIN
+			READ_2DA_ENTRY_FORMER rows 0 i kitname
+			PATCH_IF !(~%kitname%~ STRING_CONTAINS_REGEXP ~BEASTMASTER~) BEGIN
+				SET_2DA_ENTRY_LATER new_prof 18 i+1 5
+				SET_2DA_ENTRY_LATER new_prof 23 i+1 5
+			END
+		END
+		SET_2DA_ENTRIES_NOW new_prof cols_new
+	BUT_ONLY
+
+	//文本替换
+	OUTER_SET lower= RESOLVE_STR_REF (@2001)
+	OUTER_SET mixed= RESOLVE_STR_REF (@2002)
+	OUTER_SET help= RESOLVE_STR_REF (@2003)
+
+	COPY_EXISTING kitlist.2da override clastext.2da override
+		SET kitname_col= (~%SOURCE_RES%~ STR_EQ ~kitlist~) ? 1 : 0
+		SET lower_col= (~%SOURCE_RES%~ STR_EQ ~kitlist~) ? 2 : 3
+		SET mixed_col= (~%SOURCE_RES%~ STR_EQ ~kitlist~) ? 3 : 5
+		COUNT_2DA_COLS cols
+		READ_2DA_ENTRIES_NOW rows cols
+		FOR (i=0;i<rows;++i) BEGIN
+			READ_2DA_ENTRY_FORMER rows i ~%kitname_col%~ kitname
+			PATCH_IF (~%kitname%~ STR_EQ ~BEASTMASTER~) || (~%kitname%~ STR_EQ ~BEAST_MASTER~) BEGIN
+				SET_2DA_ENTRY_LATER new i ~%lower_col%~ ~%lower%~
+				SET_2DA_ENTRY_LATER new i ~%mixed_col%~ ~%mixed%~
+				SET_2DA_ENTRY_LATER new i 4							~%help%~
+				PATCH_IF ~%SOURCE_RES%~ STR_EQ ~kitlist~ BEGIN
+					SET_2DA_ENTRY_LATER new i 5 c4IK2
+				END
+			END
+		END
+		SET_2DA_ENTRIES_NOW new cols
+		PRETTY_PRINT_2DA
+		BUT_ONLY
+
+	//// 表格
+	// CLAB 
+	COPY ~%com_root%/2da/c4IK2.2da~ override
+		COUNT_2DA_COLS cols
+		READ_2DA_ENTRIES_NOW rows cols
+		SET_2DA_ENTRY_LATER add 0 1 ~GA_C4IK2SB0~
+		SET_2DA_ENTRY_LATER add 1 1 ~AP_SPCL341~
+		FOR (i=1;i<cols;i+=2) BEGIN
+			SET_2DA_ENTRY_LATER add 2 i ~GA_SPCL311~
+		END
+		FOR (i=2;i<cols;i+=4) BEGIN
+			SET_2DA_ENTRY_LATER add 3 i ~GA_C4IK2SA0~
+		END
+		SET_2DA_ENTRIES_NOW add cols
+		PRETTY_PRINT_2DA
+
+	//HLA
+	COPY_EXISTING luabbr.2da override
+		READ_2DA_ENTRIES_NOW rows 2
+		FOR (i=0;i<rows;++i) BEGIN
+			READ_2DA_ENTRY_FORMER rows i 0 kitname
+			PATCH_IF ~%kitname%~ STR_EQ ~BEASTMASTER~ BEGIN
+				READ_2DA_ENTRY_FORMER rows i 1 table
+				SET_2DA_ENTRY i 1 2 ~C4IK2~
+			END
+		END
+		PRETTY_PRINT_2DA
+
+	ACTION_IF FILE_EXISTS ~%com_root%/2da/luc4IK2.2da~ BEGIN
+		COPY ~%com_root%/2da/luc4IK2.2da~ override
+	END ELSE COPY_EXISTING ~lu%table%.2da~ ~override/luc4IK2.2da~
+		
+	//小召唤	
+	COPY_EXISTING c4IK2SA0.spl override
+		SAY NAME1 @2211
+		SAY UNIDENTIFIED_DESC @2212
+		
+	//熊爪
+	COPY_EXISTING_REGEXP GLOB ~c4IK2wp[1-4].itm~ override
+		SAY NAME1 @2202
+		SAY NAME2 @2202
+
+	//咆哮
+	ADD_PROJECTILE ~%com_root%/pro/c4IK2BS1.pro~
+	COPY_EXISTING c4IK2BS1.spl override
+		LPF ALTER_SPELL_HEADER INT_VAR projectile=c4IK2BS1 END
+		LPF CREATE_HEADERS_AS_LEVEL INT_VAR max_level=20 level_increment=10 level_multiplier=5 END
+		LPF ALTER_HEADER_EFFECTS_AS_LEVEL INT_VAR duration=1 multi_duration=1 savebonus=~-1~ multi_savebonus=~-1~ END
+		SAY NAME1 @2201
+		
+	//熊
+	OUTER_FOR (i=1;i<5;++i) BEGIN
+		OUTER_FOR (j=1;j<7;++j) BEGIN
+			COPY ~%com_root%/cre/c4IK2B%i%.cre~ ~override/c4IK2B%i%%j%.cre~
+				WRITE_ASCIIE 0x248 ~%DEST_RES%~ (40)
+				WRITE_ASCIIE 0x280 ~%DEST_RES%~ (32)
+				WRITE_ASCIIE 0x2cc ~%DEST_RES%~ (8)
+				REPLACE_CRE_ITEM ~c4IK2wp%i%~ #0 #0 #0 ~UNSTEALABLE&UNDROPPABLE~ ~WEAPON1~ EQUIP
+				SET name=2202+i
+				WRITE_LONG NAME1 RESOLVE_STR_REF ((AT ~%name%~))
+				WRITE_LONG NAME2 RESOLVE_STR_REF ((AT ~%name%~))
+		END
+	END
+		
+	//召唤熊技能
+	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=1 STR_VAR name=c4IK2SB0 variable=~c4IK2_Summoning~ END
+	COPY_EXISTING c4IK2SB0.spl override
+		SAY NAME1 @2207
+		SAY UNIDENTIFIED_DESC @2208
+		
+	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=1 STR_VAR name=c4IK2SB1 variable=~c4IK2_Callback~ END
+	COPY_EXISTING c4IK2SB1.spl override
+		SAY NAME1 @2209
+		SAY UNIDENTIFIED_DESC @2210
+		
+	LAF CREATE_EMPTY_SPELL STR_VAR name=c4IK2SBX END
+	COPY_EXISTING c4IK2SBX.spl override
+		LPF ADD_SPELL_EFFECT INT_VAR opcode=171 timing=1 target=2 STR_VAR resource=c4IK2SB0 END
+	COPY_EXISTING c4IK2SBX.spl ~override/c4IK2SBY.spl~
+		LPF ALTER_EFFECT INT_VAR opcode=172 END
+		
+	//对话
+	OUTER_FOR (BN=1;BN<5;++BN) BEGIN
+		OUTER_FOR (SN=1;SN<7;++SN) BEGIN
+			COPY ~.../c4_inlined/blank.baf~ ~%workspace%/beastmaster/c4IK2B%BN%%SN%.d~
+				APPEND_FILE_EVALUATE ~%com_root%/dlg/bear_base.d~
+		END
+	END
+
+	OUTER_FOR (PN=1;PN<7;++PN) BEGIN		
+		OUTER_FOR (BN=1;BN<5;++BN) BEGIN
+			OUTER_FOR (SN=1;SN<7;++SN) BEGIN
+				COPY ~%workspace%/beastmaster/c4IK2B%BN%%SN%.d~ ~%workspace%/beastmaster/c4IK2B%BN%%SN%.d~
+					APPEND_FILE_EVALUATE ~%com_root%/dlg/bear_add.d~
+			END
+		END
+	END
+
+	ACTION_BASH_FOR ~%workspace%/beastmaster~ ~.*\.d~ BEGIN
+		COMPILE ~%BASH_FOR_FILESPEC%~
+	END
+	
+	//熊脚本	
+	OUTER_FOR (BN=1;BN<5;++BN) BEGIN
+		OUTER_FOR (SN=1;SN<7;++SN) BEGIN
+			COPY ~%com_root%/baf/bear_base.baf~ ~%workspace%/beastmaster/c4IK2B%BN%%SN%.baf~
+				FOR (PN=1;PN<7;++PN) BEGIN
+					APPEND_FILE_EVALUATE ~%com_root%/baf/bear_setvar.baf~
+					APPEND_FILE_EVALUATE ~%com_root%/baf/bear_nosummoner.baf~
+					APPEND_FILE_EVALUATE ~%com_root%/baf/bear_dialog.baf~
+					PATCH_IF BN<4 BEGIN
+						SET n1=BN*6
+						SET n2=(BN<3) ? n1+6 : 51
+						SET NBN=BN+1
+						APPEND_FILE_EVALUATE ~%com_root%/baf/bear_upgrade.baf~
+					END
+				END
+				APPEND_FILE_EVALUATE ~%com_root%/baf/bear_attack.baf~
+		END
+	END
+
+	ACTION_BASH_FOR ~%workspace%/beastmaster~ ~.*\.baf~ BEGIN
+		COMPILE ~%BASH_FOR_FILESPEC%~
+	END
+
+	//召唤和移动
+	LAF create_observer STR_VAR name=c4IK2 conditions=~Kit(Player%slot%,BEASTMASTER)~ END
+	
+	OUTER_FOR (PN=1;PN<7;++PN) BEGIN	
+		COPY ~.../c4_inlined/blank.baf~ ~%workspace%/beastmaster/observer_%PN%.baf~
+			APPEND_FILE_EVALUATE ~%com_root%/baf/obseerver_summon_spell.baf~
+			FOR (SC=0;SC<6;++SC) BEGIN
+				FOR (BN=1;BN<5;++BN) BEGIN
+					SET SN=SC+1
+					SET n1=(BN=1) ? 1 : (BN -1)*6
+					SET n2=(BN<4) ? BN*6 : 51
+					APPEND_FILE_EVALUATE ~%com_root%/baf/obseerver_move_bear.baf~
+					APPEND_FILE_EVALUATE ~%com_root%/baf/obseerver_create.baf~
+				END
+			END
+		EXTEND_BOTTOM ~c4IK2%PN%.bcs~ ~%workspace%/beastmaster/observer_%PN%.baf~ EVAL
+	END
+
+END

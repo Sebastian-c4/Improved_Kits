@@ -1,0 +1,19 @@
+
+// ½ûÖ¹¼æÖ°
+IF
+	Kit(Player%PN%,WIZARDSLAYER)
+	OR(6)
+		Class(Player%PN%,FIGHTER_MAGE)
+		Class(Player%PN%,FIGHTER_CLERIC)
+		Class(Player%PN%,FIGHTER_THIEF)
+		Class(Player%PN%,FIGHTER_MAGE_THIEF)
+		Class(Player%PN%,FIGHTER_DRUID)
+		Class(Player%PN%,FIGHTER_MAGE_CLERIC)
+THEN
+	RESPONSE #100
+		ActionOverride(Player%PN%,AddKit(TRUECLASS))
+		Wait(1)
+		DisplayStringHead(Player%PN%,@1004)
+		ActionOverride(Player%PN%,PauseGame())
+END
+	

@@ -1,0 +1,12 @@
+
+IF
+	Kit(Player%PN%,WIZARDSLAYER)
+	!LevelLT(Player%PN%,%char_level%)
+	LevelLT(Player%PN%,%char_level_next%)
+	!TriggerOverride(Player%PN%,Global("c4IK1_Deadly_Hunt","Locals",%enhancement%%level%))
+	TriggerOverride(Player%PN%,Global("c4IK1DHX","Locals",%enhancement%))
+THEN
+	RESPONSE #100
+		ReallyForceSpellRES("c4IK1%enhancement%%level%",Player%PN%)
+END
+

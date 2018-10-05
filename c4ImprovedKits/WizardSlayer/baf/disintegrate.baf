@@ -1,0 +1,11 @@
+
+//ÁÑ½â, ±À»µ»Ö¸´
+IF
+	Kit(Player%PN%,WIZARDSLAYER)
+	TriggerOverride(Player%PN%,Global("c4IK1_Spell_Repel_Down","Locals",1))
+	TriggerOverride(Player%PN%,Global("c4IK1SRX","Locals",%type%))
+	CheckStat(Player%PN%,0,CASTINGLEVELBONUSMAGE)
+THEN
+	RESPONSE #100
+		ReallyForceSpellRES("%spell%",Player%PN%)
+END

@@ -1,0 +1,22 @@
+
+IF
+	LevelGT(Myself,5)
+	!HPLT(Myself,20)
+	Global("talk","Locals",0)
+	TriggerOverride(Player%PN%, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+THEN
+	RESPONSE #100
+		SetGlobal("talk","Locals",1)
+		StartDialogNoSet(Player%PN%)
+END
+
+IF
+	HPLT(Myself,20)
+	TriggerOverride(Player%PN%, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+THEN
+	RESPONSE #100
+		ClearAllActions()
+		SetInterrupt(FALSE)
+		ReallyForceSpell(Player%PN%,WIZARD_DIMENSION_DOOR)
+		StartDialogNoSet(Player%PN%)
+END

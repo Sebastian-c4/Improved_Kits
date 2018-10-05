@@ -1,0 +1,22 @@
+
+IF
+	Global("summoner","Locals",%SN%)
+	!TriggerOverride(Player1, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	!TriggerOverride(Player2, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	!TriggerOverride(Player3, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	!TriggerOverride(Player4, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	!TriggerOverride(Player5, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	!TriggerOverride(Player6, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+THEN
+	RESPONSE #100
+		MoveBetweenAreasEffect("ar0319","SPDIMNDR",[0.0],0)
+END
+
+IF
+	Global("summoner","Locals",%SN%)
+	TriggerOverride(Player%PN%, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	StateCheck(Player%PN%,STATE_DEAD)
+THEN
+	RESPONSE #100
+		MoveBetweenAreasEffect("ar0319","SPDIMNDR",[0.0],0)
+END

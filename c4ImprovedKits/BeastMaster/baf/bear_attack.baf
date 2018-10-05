@@ -1,0 +1,29 @@
+
+IF
+  Range(NearestEnemyOf(),5)
+  !GlobalTimerNotExpired("roar","Locals")
+THEN
+  RESPONSE #100
+    ReallyForceSpellRES("c4IK2BS1",Myself)
+    SetGlobalTimer("roar","Locals",TWO_ROUNDS)
+END
+
+IF
+  Range(NearestEnemyOf(),30)
+  Level(Myself,20)
+  HPPercentLT(Myself,34)
+  !GlobalTimerNotExpired("tough","Locals")
+THEN
+  RESPONSE #100
+    ReallyForceSpell(Myself,WARRIOR_HARDINESS)
+    SetGlobalTimer("tough","Locals",FOUR_HOURS)
+END
+
+IF
+	ActionListEmpty()
+	See([ENEMY])
+  !HPLT(Myself,20)
+THEN
+  RESPONSE #100
+    AttackReevaluate(NearestEnemyOf(),30)
+END

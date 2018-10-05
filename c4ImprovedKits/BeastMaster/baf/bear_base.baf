@@ -1,0 +1,8 @@
+
+IF
+	Global("makeglobal","Locals",0)
+THEN
+	RESPONSE #100
+		SetGlobal("makeglobal","Locals",1)
+		MakeGlobal()
+END

@@ -1,0 +1,67 @@
+BACKUP ~_c4mods_external/c4ImprovedKits/backup~
+AUTHOR ~20829444@qq.com~
+
+VERSION ~v1.0~
+
+AUTO_EVAL_STRINGS
+
+AUTO_TRA ~%MOD_FOLDER%/lang/%s~
+
+README ~%MOD_FOLDER%/lang/%LANGUAGE%/readme.pdf~
+
+ALWAYS
+
+	OUTER_SPRINT mod_root c4ImprovedKits
+  OUTER_SPRINT base_language "schinese"
+  INCLUDE "c4ImprovedKits/lib/_immutatable.tph"
+	INCLUDE "c4ImprovedKits/lib/_always.tph"
+	
+END
+
+LANGUAGE 	~¼òÌåÖÐÎÄ~ 					
+					~schinese~
+					~c4ImprovedKits/lang/schinese/prompts/prompts-%WEIDU_OS%.tra~
+					~c4ImprovedKits/lang/schinese/setup.tra~
+
+BEGIN @1	
+DESIGNATED 1
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @-10000
+
+LAF run STR_VAR file=WizardSlayer file_loc=WizardSlayer tra=WizardSlayer END
+
+///////////////////////////////////////////////////////////////////
+BEGIN @2	
+DESIGNATED 2
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @-10000
+	
+LAF run STR_VAR file=BeastMaster file_loc=BeastMaster tra=BeastMaster END
+
+///////////////////////////////////////////////////////////////////
+BEGIN @3	
+DESIGNATED 3
+REQUIRE_PREDICATE GAME_IS ~bgee bg2ee eet~ @-10000
+
+DEPRECATED ~Not available in current version.~
+
+LAF run STR_VAR file=Jester file_loc=Jester tra=Jester END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

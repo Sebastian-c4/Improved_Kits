@@ -1,0 +1,255 @@
+
+COPY ~%JST_FOLDER%/eff~ override
+COPY ~%JST_FOLDER%/pro~ override
+COPY ~%JST_FOLDER%/spl~ override
+			
+// 2da
+COPY_EXISTING kitlist.2da override
+	READ_2DA_ENTRIES_NOW rows 9
+	FOR(i=0;i<rows;i+=1) BEGIN
+		READ_2DA_ENTRY_FORMER rows i 1 name
+		READ_2DA_ENTRY_FORMER rows i 5 abilities
+		PATCH_IF ~%name%~ STR_EQ ~JESTER~ THEN BEGIN
+			jester_name = RESOLVE_STR_REF (@43001)
+			jester_desc = RESOLVE_STR_REF (@43002)
+			SET_2DA_ENTRY_LATER new_line i 2 ~%jester_name%~
+			SET_2DA_ENTRY_LATER new_line i 3 ~%jester_name%~
+			SET_2DA_ENTRY_LATER new_line i 4 ~%jester_desc%~
+			SET_2DA_ENTRY_LATER new_line i 5 "C#JESTER"
+			SPRINT old_abilities_file ~%abilities%~
+		END
+	END
+	SET_2DA_ENTRIES_NOW new_line 9
+BUT_ONLY	
+
+//清除所有原有技能
+ACTION_IF FILE_EXISTS_IN_GAME ~%old_abilities_file%.2da~ THEN BEGIN
+	COPY_EXISTING ~%old_abilities_file%.2da~ ~override/c#jester.2da~
+END ELSE COPY_EXISTING clabba03.2da ~override/c#jester.2da~
+
+COPY_EXISTING c#jester.2da override
+	COUNT_2DA_COLS cols
+	READ_2DA_ENTRIES_NOW rows cols
+	FOR (i=0;i<rows;i+=1) BEGIN
+		FOR (j=1;j<cols;j+=1) BEGIN
+			SET_2DA_ENTRY_LATER new_line i j ~****~
+		END
+	END
+	SET_2DA_ENTRY_LATER new_line 0 1 ~AP_c#jstbas~
+	SET_2DA_ENTRY_LATER new_line 1 1 ~AP_c#jst010~
+	SET_2DA_ENTRY_LATER new_line 1 6 ~AP_c#jst020~
+	SET_2DA_ENTRY_LATER new_line 1 12 ~AP_c#jst030~
+	SET_2DA_ENTRY_LATER new_line 1 18 ~AP_c#jst040~
+	SET_2DA_ENTRIES_NOW new_line cols
+
+//高阶添加
+COPY_EXISTING luabbr.2da override
+	READ_2DA_ENTRIES_NOW rows 2
+	FOR(i=0;i<rows;i+=1) BEGIN
+		READ_2DA_ENTRY_FORMER rows i 0 name
+		READ_2DA_ENTRY_FORMER rows i 1 hla_table
+		PATCH_IF ~%name%~ STR_EQ ~jester~ THEN BEGIN
+			SET_2DA_ENTRY i 1 2 c#jst
+			SPRINT old_hla_table ~%hla_table%~
+		END
+	END
+BUT_ONLY
+
+ACTION_IF FILE_EXISTS_IN_GAME ~lu%old_hla_table%.2da~ THEN BEGIN
+	COPY_EXISTING ~lu%old_hla_table%.2da~ ~override/luc#jst.2da~
+END ELSE COPY_EXISTING luba03.2da ~override/luc#jst.2da~
+
+COPY_EXISTING luc#jst.2da override
+	PATCH_IF FILE_EXISTS_IN_GAME ~rr#bjs01.spl~ THEN BEGIN //RR Jester Fix
+		REPLACE_TEXTUALLY ~AP_rr#bjs01~ ~AP_c#jst0x0~
+		REPLACE_TEXTUALLY ~AP_rr#bjs03~ ~AP_c#jst0y0~
+	END ELSE BEGIN
+		REPLACE_TEXTUALLY ~AP_SPCL920~ ~AP_c#jst0x0~
+		vanilla_jester=1
+	END
+	PATCH_IF VARIABLE_IS_SET ~vanilla_jester~ THEN BEGIN
+		READ_2DA_ENTRIES_NOW rows 10
+		FOR (i=0;i<rows;i+=1) BEGIN
+			READ_2DA_ENTRY_FORMER rows i 1 hla_name
+			PATCH_IF ~%hla_name%~ STR_EQ ~*~ THEN BEGIN
+				SET_2DA_ENTRY_LATER new_hla i 1 ~AP_c#jst0y0~
+				SET_2DA_ENTRY_LATER new_hla i 2 ~*~
+				SET_2DA_ENTRY_LATER new_hla i 3 ~*~
+				SET_2DA_ENTRY_LATER new_hla i 4 1
+				SET_2DA_ENTRY_LATER new_hla i 5 99
+				SET_2DA_ENTRY_LATER new_hla i 6 1
+				SET_2DA_ENTRY_LATER new_hla i 7 ~AP_c#jst0x0~
+				SET_2DA_ENTRY_LATER new_hla i 8 ~*~
+				SET_2DA_ENTRY_LATER new_hla i 9 ~*~
+			END
+		END
+		SET_2DA_ENTRIES_NOW new_hla 10
+	END
+		
+//阵营设定
+	COPY_EXISTING alignmnt.2da override
+		READ_2DA_ENTRIES_NOW rows 10
+		FOR (i=0;i<rows;i+=1) BEGIN
+			READ_2DA_ENTRY_FORMER rows i 0 kitname
+			PATCH_IF ~%kitname%~ STR_EQ ~jester~ THEN BEGIN
+				FOR (j=1;j<6;j+=1) BEGIN
+					SET_2DA_ENTRY_LATER new_align i j 0
+				END
+				FOR (j=7;j<10;j+=1) BEGIN
+					SET_2DA_ENTRY_LATER new_align i j 1
+				END
+			END
+		END
+		SET_2DA_ENTRIES_NOW new_align 10
+	BUT_ONLY
+
+//基础投射和降豁免
+ADD_PROJECTILE ~override/c#jester.pro~
+COPY_EXISTING c#jst000.spl override
+	LPF ALTER_SPELL_HEADER INT_VAR projectile=c#jester END
+	LPF C4_CREATE_HEADERS INT_VAR max_level=50 level_multiplier=6 level_increment=6 END
+	FOR (opcode=33;opcode<38;++opcode) BEGIN
+		LPF CLONE_EFFECT INT_VAR match_opcode=142 target=2 opcode parameter2=0 END
+		LPF C4_ALTER_HEADER_EFFECT_LVL_PROGRESS INT_VAR opcode new_parameter1=~-1~ multiplier_parameter1=~-1~ END
+	END
+	
+OUTER_FOR (i=1;i<5;i+=1) BEGIN
+	//无心智生物免疫
+	COPY_EXISTING c#jst100.eff ~override/c#jst%i%00.eff~
+		string= RESOLVE_STR_REF (@43301)
+		WRITE_LONG 0x1c ~%string%~
+		WRITE_ASCII 0x30 ~c#jst%i%00~
+		
+	//等级成长赋予的新歌曲效果	
+	COPY_EXISTING c#jst010.spl ~override/c#jst0%i%0.spl~
+		LPF ALTER_EFFECT INT_VAR match_opcode=251 STR_VAR resource=~c#jst%i%00~ END
+		
+	COPY_EXISTING c#jst000.spl ~override/c#jst%i%00.spl~
+		//免疫部分	
+		LPF ALTER_EFFECT INT_VAR match_opcode=177 timing=10 duration=100 STR_VAR match_resource=c#jst100 resource=~c#jst%i%00~ END	
+		//添加不同等级效果
+		FOR (j=1;j<=i;++j) BEGIN
+			PATCH_IF j=1 THEN BEGIN
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=146 target=2 timing=1 parameter2=1 savebonus=0 savingthrow=16 STR_VAR resource=~c#jsta%j%0~  END
+			END
+			PATCH_IF j=2 THEN BEGIN
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=146 target=2 timing=1 parameter2=1 savebonus=0 savingthrow=2 STR_VAR resource=~c#jsta%j%0~  END
+			END
+			PATCH_IF j=3 THEN BEGIN
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=146 target=2 timing=1 parameter2=1 savebonus=0 savingthrow=1 STR_VAR resource=~c#jsta%j%0~  END
+			END
+			PATCH_IF j=4 THEN BEGIN
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=146 target=2 timing=1 parameter2=1 savebonus=0 savingthrow=4 STR_VAR resource=~c#jsta%j%0~  END
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=106 target=2 timing=10 duration=100 parameter1=1 savebonus=0 savingthrow=0 END
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=22 target=2 timing=10 duration=100 parameter1=~-1~ savebonus=0 savingthrow=0 END
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=142 target=2 timing=10 duration=100 parameter2=33 savebonus=0 savingthrow=0 END
+			END
+		END		
+		//等级成长的DC
+		sbonus=0
+		GET_OFFSET_ARRAY header SPL_V10_HEADERS
+		PHP_EACH header AS int => index BEGIN
+			GET_OFFSET_ARRAY2 effect index SPL_V10_HEAD_EFFECTS
+			PHP_EACH effect AS int => offset BEGIN
+				READ_SHORT offset opcode
+				PATCH_IF opcode=146 THEN BEGIN
+					WRITE_LONG offset+0x28 THIS + sbonus
+				END
+			END
+			sbonus -= 1
+		END
+		
+	COPY_EXISTING ~c#jsta%i%0.spl~ override
+		//效果文字, 暂不添加
+		DEFINE_ASSOCIATIVE_ARRAY strref BEGIN
+			0x8 => 43211
+			0x69 => 43221
+			0x71 => 43222
+			0x23 => 43223
+			0x7c => 43224
+			0x2b => 43231
+			0x3 => 43232
+			0x24 => 43233
+			0x37 => 43234
+			0x4 => 43241
+		END
+		PHP_EACH strref AS icon => tra BEGIN
+			// string = RESOLVE_STR_REF ((AT %tra%))
+			// LPF CLONE_EFFECT INT_VAR silent=1 match_opcode=142 match_parameter2=%icon% opcode=139 parameter1=%string% parameter2=0 END
+		END
+	BUT_ONLY
+END
+
+//强力吟唱及余音绕梁
+ACTION_FOR_EACH i IN x y BEGIN
+	COPY_EXISTING c#jst100.eff ~override/c#jst%i%00.eff~
+		string= RESOLVE_STR_REF (@43301)
+		WRITE_LONG 0x1c ~%string%~
+		WRITE_ASCII 0x30 ~c#jst%i%00~
+	COPY_EXISTING c#jst010.spl ~override/c#jst0%i%0.spl~
+		LPF ALTER_EFFECT INT_VAR match_opcode=251 STR_VAR resource=~c#jst%i%00~ END
+	COPY_EXISTING c#jst400.spl ~override/c#jst%i%00.spl~
+		LPF ALTER_EFFECT INT_VAR match_opcode=177 timing=10 duration=100 STR_VAR match_resource=c#jst400 resource=~c#jst%i%00~ END
+		GET_OFFSET_ARRAY header SPL_V10_HEADERS
+		PHP_EACH header AS int => index BEGIN
+			GET_OFFSET_ARRAY2 effect index SPL_V10_HEAD_EFFECTS
+			PHP_EACH effect AS int => offset BEGIN
+				READ_SHORT offset opcode
+				READ_ASCII offset+0x14 resource
+				INNER_PATCH ~%i%~ BEGIN
+					READ_BYTE 0 type
+				END
+				PATCH_IF opcode=146 THEN BEGIN
+					INNER_PATCH_SAVE new_resource ~%resource%~ BEGIN
+						WRITE_BYTE 5 ~%type%~
+					END
+					WRITE_ASCIIE offset+0x14 ~%new_resource%~
+				END
+			END
+		END
+		PATCH_IF ~%i%~ STR_EQ y THEN BEGIN
+			LPF ALTER_EFFECT INT_VAR match_target=2 match_timing=10 match_duration=100 duration=300 END
+		END
+END
+
+COPY_EXISTING c#jst0x0.spl override
+	WRITE_ASCII 0x3a SPWI206C
+	LPF ALTER_SPELL_HEADER STR_VAR icon=SPWI206B END
+	SAY NAME1 @43101
+	SAY UNIDENTIFIED_DESC @43102
+COPY_EXISTING c#jst0y0.spl override
+	WRITE_ASCII 0x3a sppr506c
+	LPF ALTER_SPELL_HEADER STR_VAR icon=SPPR506b END
+	SAY NAME1 @43103
+	SAY UNIDENTIFIED_DESC @43104
+
+OUTER_FOR (i=1;i<5;i+=1) BEGIN
+	COPY_EXISTING ~c#jsta%i%0.spl~ ~override/c#jstx%i%0.spl~
+		PATCH_FOR_EACH prob IN 9 14 39 64 89 BEGIN
+			new_prob=prob+10
+			LPF ALTER_EFFECT INT_VAR silent=1 match_probability1=%prob% probability1=%new_prob% END
+		END
+	COPY_EXISTING ~c#jstx%i%0.spl~ ~override/c#jsty%i%0.spl~
+		LPF ALTER_EFFECT INT_VAR match_timing=10 match_duration=100 duration=300 END
+END
+	
+//高阶效果借用RR小丑修改的免疫
+COPY - ~%JST_FOLDER%/spl/borrow_from_rr/rr_jst.spl~ override
+	LPF DELETE_EFFECT INT_VAR match_target=2 END
+	GET_OFFSET_ARRAY header SPL_V10_HEADERS
+	PHP_EACH header AS int => index BEGIN
+		GET_OFFSET_ARRAY2 effect index SPL_V10_HEAD_EFFECTS
+		PHP_EACH effect AS int => offset BEGIN
+			READ_SHORT offset opcode
+			READ_LONG offset+4 parameter1
+			READ_LONG offset+8 parameter2
+			READ_ASCII offset+20 resource
+			INNER_ACTION BEGIN
+				COPY_EXISTING c#jstx00.spl override
+					LPF CLONE_EFFECT INT_VAR match_opcode=142 match_parameter2=40 opcode parameter1 parameter2 STR_VAR resource END
+				COPY_EXISTING c#jsty00.spl override
+					LPF CLONE_EFFECT INT_VAR match_opcode=142 match_parameter2=40 duration=300 opcode parameter1 parameter2 STR_VAR resource END
+			END
+		END
+	END
+		

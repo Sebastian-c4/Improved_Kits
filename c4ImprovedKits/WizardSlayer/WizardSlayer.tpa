@@ -1,0 +1,300 @@
+DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
+
+	OUTER_TEXT_SPRINT com_root ~%mod_root%/WizardSlayer~	
+
+	// INCLUDE ~%com_root%/remove_old.tpa~
+
+	//限制脚本
+	COPY ~.../c4_inlined/blank.baf~ ~%workspace%/wizardslayer/observers.baf~
+		APPEND_FILE_EVALUATE ~%com_root%/baf/check_multi_class.baf~
+
+	//复制文件
+	COPY ~%com_root%/eff~ override
+	COPY ~%com_root%/spl~ override
+
+	//禁转职
+	COPY_EXISTING DUALCLAS.2da override
+		READ_2DA_ENTRIES_NOW rows 7
+		FOR (i=0;i<rows;++i) BEGIN
+			READ_2DA_ENTRY_FORMER rows i 0 kitname
+			PATCH_IF ~%kitname%~ STR_EQ ~WIZARD_SLAYER~ BEGIN
+				FOR (j=1;j<7;++j) BEGIN
+					SET_2DA_ENTRY_LATER no_dual i j 0
+				END
+			END
+		END
+		SET_2DA_ENTRIES_NOW no_dual 7
+		BUT_ONLY
+
+	//文本替换
+	OUTER_SET lower= RESOLVE_STR_REF (@1001)
+	OUTER_SET mixed= RESOLVE_STR_REF (@1002)
+	OUTER_SET help= RESOLVE_STR_REF (@1003)
+
+	COPY_EXISTING kitlist.2da override clastext.2da override
+		SET kitname_col= (~%SOURCE_RES%~ STR_EQ ~kitlist~) ? 1 : 0
+		SET lower_col= (~%SOURCE_RES%~ STR_EQ ~kitlist~) ? 2 : 3
+		SET mixed_col= (~%SOURCE_RES%~ STR_EQ ~kitlist~) ? 3 : 5
+		COUNT_2DA_COLS cols
+		READ_2DA_ENTRIES_NOW rows cols
+		FOR (i=0;i<rows;++i) BEGIN
+			READ_2DA_ENTRY_FORMER rows i ~%kitname_col%~ kitname
+			PATCH_IF ~%kitname%~ STR_EQ ~WIZARD_SLAYER~ BEGIN
+				SET_2DA_ENTRY_LATER new i ~%lower_col%~ ~%lower%~
+				SET_2DA_ENTRY_LATER new i ~%mixed_col%~ ~%mixed%~
+				SET_2DA_ENTRY_LATER new i 4							~%help%~
+				PATCH_IF ~%SOURCE_RES%~ STR_EQ ~kitlist~ BEGIN READ_2DA_ENTRY_FORMER rows i 5 table END
+			END
+		END
+		SET_2DA_ENTRIES_NOW new cols
+		PRETTY_PRINT_2DA
+		BUT_ONLY
+
+	//// 表格
+	// CLAB 
+	COPY ~%com_root%/2da/CLABFI03.2da~ ~override/%table%.2da~
+		COUNT_2DA_COLS cols
+		READ_2DA_ENTRIES_NOW rows cols
+		SET_2DA_ENTRY_LATER new 0 1 ~AP_C4IK1P00~
+		//干扰
+		SET_2DA_ENTRY_LATER new 1 1 ~AP_C4IK1P10~
+		//AC物抗惩罚
+		SET_2DA_ENTRY_LATER new 2 1 ~AP_C4IK1P20~
+		FOR (i=1;i<cols;++i) BEGIN
+			//魔抗元素抗
+			PATCH_IF i<21 BEGIN
+				SET_2DA_ENTRY_LATER new 3 i ~AP_C4IK1P30~
+			END
+			//法术豁免+3
+			SET_2DA_ENTRY_LATER new 4 1 ~AP_C4IK1P40~
+			PATCH_IF (i MODULO 5) = 0 BEGIN
+				//法术豁免5级+1
+				SET_2DA_ENTRY_LATER new 5 i ~AP_C4IK1P50~
+				//破解
+				SET_2DA_ENTRY_LATER new 6 i ~GA_c4IK1WB0~
+			END
+		END
+		//基础裂解
+		SET_2DA_ENTRY_LATER new 7 1 ~GA_C4IK1D00~
+		//tweaks攻击次数
+		PATCH_IF FILE_EXISTS_IN_GAME ~d5_numat.spl~ BEGIN
+			SET_2DA_ENTRY_LATER new 8 7 ~AP_D5_NUMAT~
+			SET_2DA_ENTRY_LATER new 8 13 ~AP_D5_NUMAT~
+		END
+		SET_2DA_ENTRIES_NOW new cols
+		PRETTY_PRINT_2DA
+
+	//HLA
+	COPY_EXISTING luabbr.2da override
+		READ_2DA_ENTRIES_NOW rows 2
+		FOR (i=0;i<rows;++i) BEGIN
+			READ_2DA_ENTRY_FORMER rows i 0 kitname
+			PATCH_IF ~%kitname%~ STR_EQ ~WIZARD_SLAYER~ BEGIN
+				SET_2DA_ENTRY i 1 2 ~C4IK1~
+			END
+		END
+		PRETTY_PRINT_2DA
+		
+	COPY ~%com_root%/2da/lufi3.2da~ ~override/luC4IK1.2da~
+		
+	//版本变量
+  LAF check_ini STR_VAR ini=version_wizard_slayer RET value END
+	COPY_EXISTING c4IK1P00.spl override
+		LPF CLONE_EFFECT INT_VAR match_opcode=191 opcode=177 parameter1=0 parameter2=2 STR_VAR resource=c4IK1ver END
+	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=value STR_VAR name=c4IK1ver variable=c4IK1_Version END
+
+	//// 追命截杀
+	ACTION_FOR_EACH enhancement IN 0 1 2 3 4 5 BEGIN
+		OUTER_FOR (i=1;i<18;++i) BEGIN 
+			ACTION_IF i<10 BEGIN
+				OUTER_TEXT_SPRINT level ~0%i%~
+			END ELSE OUTER_TEXT_SPRINT level ~%i%~
+			OUTER_SPRINT mark ~%enhancement%%level%~
+			
+			//脚本施放法术
+			LAF CREATE_EMPTY_SPELL STR_VAR name=~c4IK1%mark%~ END
+			
+			ACTION_FOR_EACH ids_class IN 1 7 10 13 14 17 19 BEGIN
+				
+				//添加进法术
+				COPY_EXISTING ~c4IK1%mark%.spl~ override
+					LOOKUP_IDS_SYMBOL_OF_INT class_name ~class~ ~%ids_class%~
+					LPF GET_UNIQUE_FILE_NAME STR_VAR extension=eff base=~c4IK_WizardSlayer_DeadlyHunt_E%enhancement%L%level%_%class_name%_thac0~ RET thac0=filename END  
+					LPF GET_UNIQUE_FILE_NAME STR_VAR extension=eff base=~c4IK_WizardSlayer_DeadlyHunt_E%enhancement%L%level%_%class_name%_damage~ RET damage=filename END  
+					LPF ADD_SPELL_EFFECT INT_VAR opcode=177 target=2 timing=9 parameter2=2 STR_VAR resource=~%thac0%~ END
+					LPF ADD_SPELL_EFFECT INT_VAR opcode=177 target=2 timing=9 parameter2=2 STR_VAR resource=~%damage%~ END
+				
+				//创建EFF
+				COPY ~%com_root%/eff/base/c4IK1000.eff~ ~override/%thac0%.eff~
+					WRITE_LONG 0x10 178 //opcode		
+					WRITE_LONG 0x1c ids_class	//parameter1
+					WRITE_LONG 0x60 i+enhancement*2	//parameter3
+				COPY_EXISTING ~%thac0%.eff~ ~override/%damage%.eff~
+					WRITE_LONG 0x10 179 //opcode		
+					
+			END // end of ids_class
+			
+			//添加标记和字符串		
+			COPY ~%com_root%/eff/base/c4IK1001.eff~ ~override/c4IK1%mark%.eff~
+				WRITE_LONG 0x1c ~%mark%~
+
+			COPY_EXISTING ~c4IK1%mark%.spl~ override
+				//添加字符串
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=139 target=2 timing=1 parameter1= RESOLVE_STR_REF (@1005) insert_point=0 END
+				//标记
+				LPF ADD_SPELL_EFFECT INT_VAR opcode=177 target=2 timing=1 parameter2=2 insert_point=0 STR_VAR resource=~c4IK1%mark%~ END
+				//移除前一效果
+				FOR (x=0;x<6;++x) BEGIN
+					FOR (y=1;y<18;++y) BEGIN
+						PATCH_IF x<=enhancement && y<i BEGIN
+							PATCH_IF y<10 BEGIN
+								TEXT_SPRINT z ~0%y%~
+							END ELSE TEXT_SPRINT z ~%y%~
+							LPF CLONE_EFFECT INT_VAR match_opcode=139 opcode=321 timing=0 parameter1=0 STR_VAR resource=~c4IK1%x%%z%~ END
+						END
+					END
+				END
+			
+			//添加脚本
+			OUTER_SET char_level=level*3 -2
+			OUTER_SET char_level_next=char_level+3
+			COPY ~%workspace%/wizardslayer/observers.baf~ ~%workspace%/wizardslayer/observers.baf~
+				APPEND_FILE_EVALUATE ~%com_root%/baf/deadly_hunt.baf~			
+		END //end of for(i)
+	END //end of enhancement
+
+	//高阶
+	COPY_EXISTING c4IK1DHX.spl override
+		SAY NAME1 @1213
+		SAY UNIDENTIFIED_DESC @1214
+
+	//// 奥术破解
+	OUTER_SET breach = IDS_OF_SYMBOL (~spell~ ~WIZARD_BREACH~)
+	OUTER_SNPRINT ~-3~ filename ~%breach%~
+	COPY_EXISTING ~spwi%filename%.spl~ ~override/c4IK1WB0.spl~
+		WRITE_LONG 0x8 ~-1~
+		WRITE_SHORT 0x1c 4
+		WRITE_LONG 0x34 1
+		SAY NAME1 @1006
+		LPF ALTER_SPELL_HEADER INT_VAR location=4 END
+		LPF ALTER_EFFECT INT_VAR power=0 END
+
+	//// 奥术裂解
+	// 基础法术
+	COPY ~%com_root%/spl/base/c4IK1D00.spl~ override
+		SAY NAME1 @1101
+		SAY UNIDENTIFIED_DESC @1102
+		
+	// 自身降低
+	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=0 STR_VAR name=c4IK1D00 variable=~c4IK1_Spell_Repel_Down~ END
+	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=1 STR_VAR name=c4IK1D01 variable=~c4IK1_Spell_Repel_Down~ END
+
+	COPY_EXISTING c4IK1P30.spl ~override/c4IK1D01.spl~
+		LPF ALTER_EFFECT INT_VAR target=1 timing=0 duration=18 END
+		LPF CREATE_HEADERS_AS_LEVEL INT_VAR max_level=20 END
+		LPF ALTER_HEADER_EFFECTS_AS_LEVEL INT_VAR parameter1=~-2~ multi_parameter1=~-2~ END
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=139 timing=1 duration=0 parameter1= RESOLVE_STR_REF (@1103) END
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=142 parameter1=0 parameter2=39 END
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=172 parameter1=0 parameter2=0 STR_VAR resource=c4IK1D00 END
+		// 用CASTINGLEVELBONUSMAGE和局部变量判断疲劳状态
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=337 parameter1=191 parameter2=101 END
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=191 parameter1=1 parameter2=0 END
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=101 timing=9 duration=0 parameter1=0 parameter2=191 END
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=177 timing=1 duration=0 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D01 END
+		
+	// 真实破防
+	COPY ~%com_root%/spl/base/c4IK1D02.spl~ override
+		LPF CREATE_HEADERS_AS_LEVEL INT_VAR max_level=18 level_increment=6 level_multiplier=6 END
+		LPF ALTER_HEADER_EFFECTS_AS_LEVEL INT_VAR match_opcode=230 parameter1=6 multi_parameter1=1 END
+
+	// 恢复
+	COPY ~%com_root%/spl/base/c4IK1D03.spl~ override
+		LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=321 timing=0 parameter1=0 STR_VAR resource=c4IK1D01 END
+		LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=139 parameter1= RESOLVE_STR_REF (@1104) STR_VAR resource=~~ END
+		LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=177 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D00 END
+
+	// 法术排斥精通
+	OUTER_FOR (i=1;i<5;++i) BEGIN
+		// 裂解
+		// 基础法术，学高阶必然超过18级，破防无须改动
+		COPY ~%com_root%/spl/base/c4IK1D00.spl~ ~override/c4IK1D%i%0.spl~
+			LPF ALTER_EFFECT INT_VAR match_opcode=146 match_target=1 STR_VAR resource=~c4IK1D%i%1~ END
+			SAY NAME1 @1101
+			SAY UNIDENTIFIED_DESC @1102
+			
+		// 自身降低
+		COPY ~%com_root%/spl/base/c4IK1D01.spl~ ~override/c4IK1D%i%1.spl~
+			LPF ALTER_EFFECT INT_VAR target=1 timing=0 duration=18 END
+			LPF ALTER_HEADER_EFFECTS_AS_LEVEL INT_VAR parameter1=~-40~ + i*~-15~ END
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=139 timing=1 duration=0 parameter1= RESOLVE_STR_REF (@1103) END
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=142 parameter1=0 parameter2=39 END
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=172 timing=1 duration=0 parameter1=0 parameter2=0 STR_VAR resource=~c4IK1D%i%0~ END
+			// 用CASTINGLEVELBONUSMAGE和局部变量判断疲劳状态
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=337 parameter1=191 parameter2=101 END
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=191 parameter1=1 parameter2=0 END
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=101 timing=9 duration=0 parameter1=0 parameter2=191 END
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=177 timing=1 duration=0 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D01 END
+
+		// 恢复
+		COPY ~%com_root%/spl/base/c4IK1D03.spl~ ~override/c4IK1D%i%3.spl~
+			LPF ALTER_EFFECT INT_VAR match_opcode=171 STR_VAR resource=~c4IK1D%i%0~ END
+			LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=321 timing=0 parameter1=0 STR_VAR resource=~c4IK1D%i%1~ END
+			LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=139 parameter1= RESOLVE_STR_REF (@1104) STR_VAR resource=~~ END
+			LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=177 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D00 END
+			
+		// 高阶
+		COPY ~%com_root%/spl/base/c4IK1SR0.spl~ ~override/c4IK1SR%i%.spl~
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=309 parameter1=1 parameter2=1 STR_VAR resource=~c4IK1SRX~ END
+			FOR (j=0;j<i;++j) BEGIN
+				LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=172 parameter1=0 STR_VAR resource=~c4IK1D%j%0~ END
+			END
+			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=171 parameter1=0 STR_VAR resource=~c4IK1D%i%0~ END
+			SET name_tra=1200 + i*2 -1
+			SET desc_tra=1200 + i*2
+			WRITE_LONG 0x8	RESOLVE_STR_REF ((AT ~%name_tra%~))
+			WRITE_LONG 0x54	RESOLVE_STR_REF ((AT ~%desc_tra%~))
+			
+	END // end of for(i)
+
+	//// 奥术崩坏
+	COPY_EXISTING c4IK1D40.spl ~override/c4IK1D50.spl~
+		FOR (delay=6;delay<25;delay+=6) BEGIN
+			LPF CLONE_EFFECT INT_VAR match_timing=1 timing=4 duration=delay STR_VAR match_resource=c4IK1D02 insert=last END
+		END
+		LPF ALTER_EFFECT STR_VAR match_resource=c4IK1D41 resource=c4IK1D51 END
+		WRITE_ASCII 0x3a SPWI903B (8)
+		LPF ALTER_SPELL_HEADER STR_VAR icon=SPWI903B END
+		SAY NAME1 @1211
+		SAY UNIDENTIFIED_DESC @1212
+		
+	// 终极精通同样移除崩坏	
+	COPY_EXISTING c4IK1D41.spl override
+		LPF CLONE_EFFECT INT_VAR match_opcode=172 STR_VAR resource=c4IK1D50 END
+		
+	COPY_EXISTING c4IK1D41.spl ~override/c4IK1D51.spl~
+		LPF ALTER_EFFECT INT_VAR match_timing=0 duration=60 END
+		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=309 parameter1=5 parameter2=0 STR_VAR resource=~c4IK1SRX~ END
+		
+	COPY_EXISTING c4IK1D43.spl ~override/c4IK1D53.spl~
+		LPF CLONE_EFFECT INT_VAR match_opcode=321 STR_VAR resource=c4IK1D51 END
+		LPF CLONE_EFFECT INT_VAR match_opcode=171 STR_VAR resource=c4IK1D50 END
+
+	//// 恢复脚本
+	COPY ~%workspace%/wizardslayer/observers.baf~ ~%workspace%/wizardslayer/observers.baf~
+		FOR (type=0;type<6;++type) BEGIN
+			SPRINT spell ~c4IK1D%type%3~
+			APPEND_FILE_EVALUATE ~%com_root%/baf/disintegrate.baf~
+		END
+		
+	//// 逍遥法外
+	COPY_EXISTING C4IK1OTL.spl override
+		SAY NAME1 @1209
+		SAY UNIDENTIFIED_DESC @1210
+		
+	LAF create_observer STR_VAR name=c4IK1 conditions=~Kit(Player%slot%,WIZARDSLAYER)~ END
+
+	OUTER_FOR (PN=1;PN<7;++PN) BEGIN
+		EXTEND_BOTTOM ~c4IK1%PN%.bcs~ ~%workspace%/wizardslayer/observers.baf~ EVAL
+	END
+
+END

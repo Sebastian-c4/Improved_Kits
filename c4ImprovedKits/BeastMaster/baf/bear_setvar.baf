@@ -1,0 +1,9 @@
+
+IF
+	Global("c4IK2B%BN%%SN%","Global",0)
+	TriggerOverride(Player%PN%, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+THEN
+	RESPONSE #100
+		SetGlobal("c4IK2B%BN%%SN%","Global",1)
+		SetGlobal("summoner","Locals",%SN%)
+END

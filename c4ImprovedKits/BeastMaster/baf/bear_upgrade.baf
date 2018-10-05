@@ -1,0 +1,14 @@
+
+IF
+	Global("c4IK2B%BN%%SN%","Global",1)
+	!ClassLevelLT(Player%PN%,WARRIOR,%n1%)
+	ClassLevelLT(Player%PN%,WARRIOR,%n2%)
+	HasItem("c4IK2wp%BN%",Myself)
+	TriggerOverride(Player%PN%, Global("c4IK2_Summoner","Locals",%BN%%SN%))
+THEN
+	RESPONSE #100
+		SetGlobal("c4IK2B%BN%%SN%","Global",0)
+		ActionOverride(Player%PN%, SetGlobal("c4IK2_Summoner","Locals",%NBN%%SN%))
+		CreateCreatureObjectEffect("c4IK2B%NBN%%SN%","spanisum",Player%PN%)
+		DestroySelf()
+END

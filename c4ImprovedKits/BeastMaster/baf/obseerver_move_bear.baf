@@ -1,0 +1,43 @@
+
+IF
+	Class(Player%PN%,RANGER_ALL)
+	Kit(Player%PN%,BEASTMASTER)
+	TriggerOverride(Player%PN%,Global("c4IK2_Callback","Locals",1))
+	TriggerOverride(Player%PN%,Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	Global("c4IK2B%BN%%SN%","Global",1)
+	Global("c4IK2_B%BN%N%SN%_Retreat","Global",0)
+THEN
+	RESPONSE #100
+		ActionOverride(Player%PN%,SetGlobal("c4IK2_Callback","Locals",0))
+		MoveGlobalObject("c4IK2B%BN%%SN%",Player%PN%)
+		// Continue()
+END
+
+IF
+	Class(Player%PN%,RANGER_ALL)
+	Kit(Player%PN%,BEASTMASTER)
+	TriggerOverride(Player%PN%,Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	Global("c4IK2B%BN%%SN%","Global",1)
+	Global("c4IK2_B%BN%N%SN%_Retreat","Global",0)
+	!TriggerOverride(Player%PN%,InMyArea("c4IK2B%BN%%SN%"))
+THEN
+	RESPONSE #100
+		MoveGlobalObject("c4IK2B%BN%%SN%",Player%PN%)
+		// Continue()
+END
+
+IF
+	Class(Player%PN%,RANGER_ALL)
+	Kit(Player%PN%,BEASTMASTER)
+	TriggerOverride(Player%PN%,Global("c4IK2_Summoner","Locals",%BN%%SN%))
+	Global("c4IK2B%BN%%SN%","Global",1)
+	Global("c4IK2_B%BN%N%SN%_Retreat","Global",1)
+	GlobalTimerExpired("c4IK2_B%BN%N%SN%_Retreat_Timer","Global")
+	!TriggerOverride(Player%PN%,InMyArea("c4IK2B%BN%%SN%"))
+THEN
+	RESPONSE #100
+		SetGlobal("c4IK2_B%BN%N%SN%_Retreat","Global",0)
+		MoveGlobalObject("c4IK2B%BN%%SN%",Player%PN%)
+		DisplayStringHead(Player%PN%,@2103)
+		// Continue()
+END

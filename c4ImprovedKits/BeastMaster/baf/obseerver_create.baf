@@ -1,0 +1,17 @@
+
+IF
+	Class(Player%PN%,RANGER_ALL)
+	Kit(Player%PN%,BEASTMASTER)
+	Global("c4IK2_Summoner_Count","Global",%SC%)
+	TriggerOverride(Player%PN%,Global("c4IK2_Summoning","Locals",1))
+	!ClassLevelLT(Player%PN%,WARRIOR,%n1%)
+	ClassLevelLT(Player%PN%,WARRIOR,%n2%)
+THEN
+	RESPONSE #100
+		Wait(1)
+		ActionOverride(Player%PN%,SetGlobal("c4IK2_Summoner_Count","Global",%SN%))
+		ActionOverride(Player%PN%,SetGlobal("c4IK2_Summoner","Locals",%BN%%SN%))
+		ActionOverride(Player%PN%,SetGlobal("c4IK2_Summoning","Locals",0))
+		CreateCreatureObjectEffect("c4IK2B%BN%%SN%","spanisum",Player%PN%)
+		// Continue()
+END

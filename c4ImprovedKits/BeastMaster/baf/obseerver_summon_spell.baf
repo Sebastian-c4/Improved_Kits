@@ -1,0 +1,22 @@
+
+IF
+	Class(Player%PN%,RANGER_ALL)
+	Kit(Player%PN%,BEASTMASTER)
+	TriggerOverride(Player%PN%,Global("c4IK2_Summoner","Locals",0))
+	!TriggerOverride(Player%PN%,HaveKnownSpellRES("c4IK2SB0"))
+THEN
+	RESPONSE #100
+		ReallyForceSpellRES("c4IK2SBX",Player%PN%)
+		// Continue()
+END
+
+IF
+	Class(Player%PN%,RANGER_ALL)
+	Kit(Player%PN%,BEASTMASTER)
+	!TriggerOverride(Player%PN%,Global("c4IK2_Summoner","Locals",0))
+	TriggerOverride(Player%PN%,HaveKnownSpellRES("c4IK2SB0"))
+THEN
+	RESPONSE #100
+		ReallyForceSpellRES("c4IK2SBY",Player%PN%)
+		// Continue()
+END
