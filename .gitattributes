@@ -1,0 +1,15 @@
+*.au3 text eol=crlf
+*.htm text eol=crlf
+*.html text eol=crlf
+*.ini text eol=crlf
+*.ps1 text eol=crlf
+*.txt text eol=crlf
+*.vbs text eol=crlf
+*.dll binary
+*.exe binary
+*.gif binary
+*.ico binary
+*.jpg binary
+*.png binary
+*.gitignore text eol=crlf
+*.gitattributes text eol=crlf

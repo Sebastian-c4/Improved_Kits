@@ -1,5 +1,5 @@
 
-// ��ֹ��ְ
+// 禁止兼职
 IF
 	Kit(Player%PN%,WIZARDSLAYER)
 	OR(6)

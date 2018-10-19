@@ -1,7 +1,7 @@
 BACKUP ~_c4mods_external/c4ImprovedKits/backup~
-AUTHOR ~20829444@qq.com~
+AUTHOR ~c4demon@gmail.com~
 
-VERSION ~v1.0~
+VERSION ~v1.1~
 
 AUTO_EVAL_STRINGS
 
@@ -16,7 +16,7 @@ ALWAYS
 	
 END
 
-LANGUAGE 	~¼òÌåÖÐÎÄ~ 					
+LANGUAGE 	~ç®€ä½“ä¸­æ–‡~ 					
 					~schinese~
 					~c4ImprovedKits/lang/schinese/prompts/prompts-%WEIDU_OS%.tra~
 					~c4ImprovedKits/lang/schinese/setup.tra~

@@ -4,15 +4,15 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 
 	// INCLUDE ~%com_root%/remove_old.tpa~
 
-	//ÏŞÖÆ½Å±¾
+	//é™åˆ¶è„šæœ¬
 	COPY ~.../c4_inlined/blank.baf~ ~%workspace%/wizardslayer/observers.baf~
 		APPEND_FILE_EVALUATE ~%com_root%/baf/check_multi_class.baf~
 
-	//¸´ÖÆÎÄ¼ş
+	//å¤åˆ¶æ–‡ä»¶
 	COPY ~%com_root%/eff~ override
 	COPY ~%com_root%/spl~ override
 
-	//½û×ªÖ°
+	//ç¦è½¬èŒ
 	COPY_EXISTING DUALCLAS.2da override
 		READ_2DA_ENTRIES_NOW rows 7
 		FOR (i=0;i<rows;++i) BEGIN
@@ -26,7 +26,7 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		SET_2DA_ENTRIES_NOW no_dual 7
 		BUT_ONLY
 
-	//ÎÄ±¾Ìæ»»
+	//æ–‡æœ¬æ›¿æ¢
 	OUTER_SET lower= RESOLVE_STR_REF (@1001)
 	OUTER_SET mixed= RESOLVE_STR_REF (@1002)
 	OUTER_SET help= RESOLVE_STR_REF (@1003)
@@ -50,33 +50,33 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		PRETTY_PRINT_2DA
 		BUT_ONLY
 
-	//// ±í¸ñ
+	//// è¡¨æ ¼
 	// CLAB 
 	COPY ~%com_root%/2da/CLABFI03.2da~ ~override/%table%.2da~
 		COUNT_2DA_COLS cols
 		READ_2DA_ENTRIES_NOW rows cols
 		SET_2DA_ENTRY_LATER new 0 1 ~AP_C4IK1P00~
-		//¸ÉÈÅ
+		//å¹²æ‰°
 		SET_2DA_ENTRY_LATER new 1 1 ~AP_C4IK1P10~
-		//ACÎï¿¹³Í·£
+		//ACç‰©æŠ—æƒ©ç½š
 		SET_2DA_ENTRY_LATER new 2 1 ~AP_C4IK1P20~
 		FOR (i=1;i<cols;++i) BEGIN
-			//Ä§¿¹ÔªËØ¿¹
+			//é­”æŠ—å…ƒç´ æŠ—
 			PATCH_IF i<21 BEGIN
 				SET_2DA_ENTRY_LATER new 3 i ~AP_C4IK1P30~
 			END
-			//·¨Êõ»íÃâ+3
+			//æ³•æœ¯è±å…+3
 			SET_2DA_ENTRY_LATER new 4 1 ~AP_C4IK1P40~
 			PATCH_IF (i MODULO 5) = 0 BEGIN
-				//·¨Êõ»íÃâ5¼¶+1
+				//æ³•æœ¯è±å…5çº§+1
 				SET_2DA_ENTRY_LATER new 5 i ~AP_C4IK1P50~
-				//ÆÆ½â
+				//ç ´è§£
 				SET_2DA_ENTRY_LATER new 6 i ~GA_c4IK1WB0~
 			END
 		END
-		//»ù´¡ÁÑ½â
+		//åŸºç¡€è£‚è§£
 		SET_2DA_ENTRY_LATER new 7 1 ~GA_C4IK1D00~
-		//tweaks¹¥»÷´ÎÊı
+		//tweaksæ”»å‡»æ¬¡æ•°
 		PATCH_IF FILE_EXISTS_IN_GAME ~d5_numat.spl~ BEGIN
 			SET_2DA_ENTRY_LATER new 8 7 ~AP_D5_NUMAT~
 			SET_2DA_ENTRY_LATER new 8 13 ~AP_D5_NUMAT~
@@ -97,13 +97,13 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		
 	COPY ~%com_root%/2da/lufi3.2da~ ~override/luC4IK1.2da~
 		
-	//°æ±¾±äÁ¿
+	//ç‰ˆæœ¬å˜é‡
   LAF check_ini STR_VAR ini=version_wizard_slayer RET value END
 	COPY_EXISTING c4IK1P00.spl override
 		LPF CLONE_EFFECT INT_VAR match_opcode=191 opcode=177 parameter1=0 parameter2=2 STR_VAR resource=c4IK1ver END
 	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=value STR_VAR name=c4IK1ver variable=c4IK1_Version END
 
-	//// ×·Ãü½ØÉ±
+	//// è¿½å‘½æˆªæ€
 	ACTION_FOR_EACH enhancement IN 0 1 2 3 4 5 BEGIN
 		OUTER_FOR (i=1;i<18;++i) BEGIN 
 			ACTION_IF i<10 BEGIN
@@ -111,12 +111,12 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 			END ELSE OUTER_TEXT_SPRINT level ~%i%~
 			OUTER_SPRINT mark ~%enhancement%%level%~
 			
-			//½Å±¾Ê©·Å·¨Êõ
+			//è„šæœ¬æ–½æ”¾æ³•æœ¯
 			LAF CREATE_EMPTY_SPELL STR_VAR name=~c4IK1%mark%~ END
 			
 			ACTION_FOR_EACH ids_class IN 1 7 10 13 14 17 19 BEGIN
 				
-				//Ìí¼Ó½ø·¨Êõ
+				//æ·»åŠ è¿›æ³•æœ¯
 				COPY_EXISTING ~c4IK1%mark%.spl~ override
 					LOOKUP_IDS_SYMBOL_OF_INT class_name ~class~ ~%ids_class%~
 					LPF GET_UNIQUE_FILE_NAME STR_VAR extension=eff base=~c4IK_WizardSlayer_DeadlyHunt_E%enhancement%L%level%_%class_name%_thac0~ RET thac0=filename END  
@@ -124,7 +124,7 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 					LPF ADD_SPELL_EFFECT INT_VAR opcode=177 target=2 timing=9 parameter2=2 STR_VAR resource=~%thac0%~ END
 					LPF ADD_SPELL_EFFECT INT_VAR opcode=177 target=2 timing=9 parameter2=2 STR_VAR resource=~%damage%~ END
 				
-				//´´½¨EFF
+				//åˆ›å»ºEFF
 				COPY ~%com_root%/eff/base/c4IK1000.eff~ ~override/%thac0%.eff~
 					WRITE_LONG 0x10 178 //opcode		
 					WRITE_LONG 0x1c ids_class	//parameter1
@@ -134,16 +134,16 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 					
 			END // end of ids_class
 			
-			//Ìí¼Ó±ê¼ÇºÍ×Ö·û´®		
+			//æ·»åŠ æ ‡è®°å’Œå­—ç¬¦ä¸²		
 			COPY ~%com_root%/eff/base/c4IK1001.eff~ ~override/c4IK1%mark%.eff~
 				WRITE_LONG 0x1c ~%mark%~
 
 			COPY_EXISTING ~c4IK1%mark%.spl~ override
-				//Ìí¼Ó×Ö·û´®
+				//æ·»åŠ å­—ç¬¦ä¸²
 				LPF ADD_SPELL_EFFECT INT_VAR opcode=139 target=2 timing=1 parameter1= RESOLVE_STR_REF (@1005) insert_point=0 END
-				//±ê¼Ç
+				//æ ‡è®°
 				LPF ADD_SPELL_EFFECT INT_VAR opcode=177 target=2 timing=1 parameter2=2 insert_point=0 STR_VAR resource=~c4IK1%mark%~ END
-				//ÒÆ³ıÇ°Ò»Ğ§¹û
+				//ç§»é™¤å‰ä¸€æ•ˆæœ
 				FOR (x=0;x<6;++x) BEGIN
 					FOR (y=1;y<18;++y) BEGIN
 						PATCH_IF x<=enhancement && y<i BEGIN
@@ -155,7 +155,7 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 					END
 				END
 			
-			//Ìí¼Ó½Å±¾
+			//æ·»åŠ è„šæœ¬
 			OUTER_SET char_level=level*3 -2
 			OUTER_SET char_level_next=char_level+3
 			COPY ~%workspace%/wizardslayer/observers.baf~ ~%workspace%/wizardslayer/observers.baf~
@@ -163,12 +163,12 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		END //end of for(i)
 	END //end of enhancement
 
-	//¸ß½×
+	//é«˜é˜¶
 	COPY_EXISTING c4IK1DHX.spl override
 		SAY NAME1 @1213
 		SAY UNIDENTIFIED_DESC @1214
 
-	//// °ÂÊõÆÆ½â
+	//// å¥¥æœ¯ç ´è§£
 	OUTER_SET breach = IDS_OF_SYMBOL (~spell~ ~WIZARD_BREACH~)
 	OUTER_SNPRINT ~-3~ filename ~%breach%~
 	COPY_EXISTING ~spwi%filename%.spl~ ~override/c4IK1WB0.spl~
@@ -179,13 +179,13 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		LPF ALTER_SPELL_HEADER INT_VAR location=4 END
 		LPF ALTER_EFFECT INT_VAR power=0 END
 
-	//// °ÂÊõÁÑ½â
-	// »ù´¡·¨Êõ
+	//// å¥¥æœ¯è£‚è§£
+	// åŸºç¡€æ³•æœ¯
 	COPY ~%com_root%/spl/base/c4IK1D00.spl~ override
 		SAY NAME1 @1101
 		SAY UNIDENTIFIED_DESC @1102
 		
-	// ×ÔÉí½µµÍ
+	// è‡ªèº«é™ä½
 	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=0 STR_VAR name=c4IK1D00 variable=~c4IK1_Spell_Repel_Down~ END
 	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=1 STR_VAR name=c4IK1D01 variable=~c4IK1_Spell_Repel_Down~ END
 
@@ -196,53 +196,53 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=139 timing=1 duration=0 parameter1= RESOLVE_STR_REF (@1103) END
 		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=142 parameter1=0 parameter2=39 END
 		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=172 parameter1=0 parameter2=0 STR_VAR resource=c4IK1D00 END
-		// ÓÃCASTINGLEVELBONUSMAGEºÍ¾Ö²¿±äÁ¿ÅĞ¶ÏÆ£ÀÍ×´Ì¬
+		// ç”¨CASTINGLEVELBONUSMAGEå’Œå±€éƒ¨å˜é‡åˆ¤æ–­ç–²åŠ³çŠ¶æ€
 		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=337 parameter1=191 parameter2=101 END
 		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=191 parameter1=1 parameter2=0 END
 		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=101 timing=9 duration=0 parameter1=0 parameter2=191 END
 		LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=177 timing=1 duration=0 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D01 END
 		
-	// ÕæÊµÆÆ·À
+	// çœŸå®ç ´é˜²
 	COPY ~%com_root%/spl/base/c4IK1D02.spl~ override
 		LPF CREATE_HEADERS_AS_LEVEL INT_VAR max_level=18 level_increment=6 level_multiplier=6 END
 		LPF ALTER_HEADER_EFFECTS_AS_LEVEL INT_VAR match_opcode=230 parameter1=6 multi_parameter1=1 END
 
-	// »Ö¸´
+	// æ¢å¤
 	COPY ~%com_root%/spl/base/c4IK1D03.spl~ override
 		LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=321 timing=0 parameter1=0 STR_VAR resource=c4IK1D01 END
 		LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=139 parameter1= RESOLVE_STR_REF (@1104) STR_VAR resource=~~ END
 		LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=177 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D00 END
 
-	// ·¨ÊõÅÅ³â¾«Í¨
+	// æ³•æœ¯æ’æ–¥ç²¾é€š
 	OUTER_FOR (i=1;i<5;++i) BEGIN
-		// ÁÑ½â
-		// »ù´¡·¨Êõ£¬Ñ§¸ß½×±ØÈ»³¬¹ı18¼¶£¬ÆÆ·ÀÎŞĞë¸Ä¶¯
+		// è£‚è§£
+		// åŸºç¡€æ³•æœ¯ï¼Œå­¦é«˜é˜¶å¿…ç„¶è¶…è¿‡18çº§ï¼Œç ´é˜²æ— é¡»æ”¹åŠ¨
 		COPY ~%com_root%/spl/base/c4IK1D00.spl~ ~override/c4IK1D%i%0.spl~
 			LPF ALTER_EFFECT INT_VAR match_opcode=146 match_target=1 STR_VAR resource=~c4IK1D%i%1~ END
 			SAY NAME1 @1101
 			SAY UNIDENTIFIED_DESC @1102
 			
-		// ×ÔÉí½µµÍ
+		// è‡ªèº«é™ä½
 		COPY ~%com_root%/spl/base/c4IK1D01.spl~ ~override/c4IK1D%i%1.spl~
 			LPF ALTER_EFFECT INT_VAR target=1 timing=0 duration=18 END
 			LPF ALTER_HEADER_EFFECTS_AS_LEVEL INT_VAR parameter1=~-40~ + i*~-15~ END
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=139 timing=1 duration=0 parameter1= RESOLVE_STR_REF (@1103) END
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=142 parameter1=0 parameter2=39 END
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=172 timing=1 duration=0 parameter1=0 parameter2=0 STR_VAR resource=~c4IK1D%i%0~ END
-			// ÓÃCASTINGLEVELBONUSMAGEºÍ¾Ö²¿±äÁ¿ÅĞ¶ÏÆ£ÀÍ×´Ì¬
+			// ç”¨CASTINGLEVELBONUSMAGEå’Œå±€éƒ¨å˜é‡åˆ¤æ–­ç–²åŠ³çŠ¶æ€
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=337 parameter1=191 parameter2=101 END
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=191 parameter1=1 parameter2=0 END
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=101 timing=9 duration=0 parameter1=0 parameter2=191 END
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=177 timing=1 duration=0 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D01 END
 
-		// »Ö¸´
+		// æ¢å¤
 		COPY ~%com_root%/spl/base/c4IK1D03.spl~ ~override/c4IK1D%i%3.spl~
 			LPF ALTER_EFFECT INT_VAR match_opcode=171 STR_VAR resource=~c4IK1D%i%0~ END
 			LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=321 timing=0 parameter1=0 STR_VAR resource=~c4IK1D%i%1~ END
 			LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=139 parameter1= RESOLVE_STR_REF (@1104) STR_VAR resource=~~ END
 			LPF CLONE_EFFECT INT_VAR match_opcode=171 opcode=177 parameter1=0 parameter2=2 STR_VAR resource=c4IK1D00 END
 			
-		// ¸ß½×
+		// é«˜é˜¶
 		COPY ~%com_root%/spl/base/c4IK1SR0.spl~ ~override/c4IK1SR%i%.spl~
 			LPF CLONE_EFFECT INT_VAR match_opcode=166 opcode=309 parameter1=1 parameter2=1 STR_VAR resource=~c4IK1SRX~ END
 			FOR (j=0;j<i;++j) BEGIN
@@ -256,7 +256,7 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 			
 	END // end of for(i)
 
-	//// °ÂÊõ±À»µ
+	//// å¥¥æœ¯å´©å
 	COPY_EXISTING c4IK1D40.spl ~override/c4IK1D50.spl~
 		FOR (delay=6;delay<25;delay+=6) BEGIN
 			LPF CLONE_EFFECT INT_VAR match_timing=1 timing=4 duration=delay STR_VAR match_resource=c4IK1D02 insert=last END
@@ -267,7 +267,7 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		SAY NAME1 @1211
 		SAY UNIDENTIFIED_DESC @1212
 		
-	// ÖÕ¼«¾«Í¨Í¬ÑùÒÆ³ı±À»µ	
+	// ç»ˆæç²¾é€šåŒæ ·ç§»é™¤å´©å	
 	COPY_EXISTING c4IK1D41.spl override
 		LPF CLONE_EFFECT INT_VAR match_opcode=172 STR_VAR resource=c4IK1D50 END
 		
@@ -279,14 +279,14 @@ DEFINE_ACTION_FUNCTION WizardSlayer BEGIN
 		LPF CLONE_EFFECT INT_VAR match_opcode=321 STR_VAR resource=c4IK1D51 END
 		LPF CLONE_EFFECT INT_VAR match_opcode=171 STR_VAR resource=c4IK1D50 END
 
-	//// »Ö¸´½Å±¾
+	//// æ¢å¤è„šæœ¬
 	COPY ~%workspace%/wizardslayer/observers.baf~ ~%workspace%/wizardslayer/observers.baf~
 		FOR (type=0;type<6;++type) BEGIN
 			SPRINT spell ~c4IK1D%type%3~
 			APPEND_FILE_EVALUATE ~%com_root%/baf/disintegrate.baf~
 		END
 		
-	//// åĞÒ£·¨Íâ
+	//// é€é¥æ³•å¤–
 	COPY_EXISTING C4IK1OTL.spl override
 		SAY NAME1 @1209
 		SAY UNIDENTIFIED_DESC @1210

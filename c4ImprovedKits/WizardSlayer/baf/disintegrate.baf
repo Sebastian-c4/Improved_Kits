@@ -1,5 +1,5 @@
 
-//ая╫Б, ╠ю╩╣╩ж╦╢
+//Хё┌Х╖ё, Е╢╘Е²▐Ф│╒Е╓█
 IF
 	Kit(Player%PN%,WIZARDSLAYER)
 	TriggerOverride(Player%PN%,Global("c4IK1_Spell_Repel_Down","Locals",1))

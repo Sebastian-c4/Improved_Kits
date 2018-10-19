@@ -3,11 +3,11 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 	OUTER_TEXT_SPRINT com_root ~%mod_root%/BeastMaster~	
 	// INCLUDE ~%com_root%/remove_old.tpa~
 
-	//∏¥÷∆Œƒº˛
+	//Â§çÂà∂Êñá‰ª∂
 	COPY ~%com_root%/itm~ override
 	COPY ~%com_root%/spl~ override
 
-	//ŒÂ–«π˜∞Ù ÷’»
+	//‰∫îÊòüÊ£çÊ£íÊâãÊùñ
 	COPY_EXISTING weapprof.2da override
 		COUNT_2DA_COLS cols
 		cols_new = cols - 1
@@ -22,7 +22,7 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 		SET_2DA_ENTRIES_NOW new_prof cols_new
 	BUT_ONLY
 
-	//Œƒ±æÃÊªª
+	//ÊñáÊú¨ÊõøÊç¢
 	OUTER_SET lower= RESOLVE_STR_REF (@2001)
 	OUTER_SET mixed= RESOLVE_STR_REF (@2002)
 	OUTER_SET help= RESOLVE_STR_REF (@2003)
@@ -48,7 +48,7 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 		PRETTY_PRINT_2DA
 		BUT_ONLY
 
-	//// ±Ì∏Ò
+	//// Ë°®Ê†º
 	// CLAB 
 	COPY ~%com_root%/2da/c4IK2.2da~ override
 		COUNT_2DA_COLS cols
@@ -80,17 +80,17 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 		COPY ~%com_root%/2da/luc4IK2.2da~ override
 	END ELSE COPY_EXISTING ~lu%table%.2da~ ~override/luc4IK2.2da~
 		
-	//–°’ŸªΩ	
+	//Â∞èÂè¨Âî§	
 	COPY_EXISTING c4IK2SA0.spl override
 		SAY NAME1 @2211
 		SAY UNIDENTIFIED_DESC @2212
 		
-	//–‹◊¶
+	//ÁÜäÁà™
 	COPY_EXISTING_REGEXP GLOB ~c4IK2wp[1-4].itm~ override
 		SAY NAME1 @2202
 		SAY NAME2 @2202
 
-	//≈ÿœ¯
+	//ÂíÜÂìÆ
 	ADD_PROJECTILE ~%com_root%/pro/c4IK2BS1.pro~
 	COPY_EXISTING c4IK2BS1.spl override
 		LPF ALTER_SPELL_HEADER INT_VAR projectile=c4IK2BS1 END
@@ -98,7 +98,7 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 		LPF ALTER_HEADER_EFFECTS_AS_LEVEL INT_VAR duration=1 multi_duration=1 savebonus=~-1~ multi_savebonus=~-1~ END
 		SAY NAME1 @2201
 		
-	//–‹
+	//ÁÜä
 	OUTER_FOR (i=1;i<5;++i) BEGIN
 		OUTER_FOR (j=1;j<7;++j) BEGIN
 			COPY ~%com_root%/cre/c4IK2B%i%.cre~ ~override/c4IK2B%i%%j%.cre~
@@ -112,7 +112,7 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 		END
 	END
 		
-	//’ŸªΩ–‹ººƒ‹
+	//Âè¨Âî§ÁÜäÊäÄËÉΩ
 	LAF CREATE_EFFECT INT_VAR opcode=187 timing=1 parameter1=1 STR_VAR name=c4IK2SB0 variable=~c4IK2_Summoning~ END
 	COPY_EXISTING c4IK2SB0.spl override
 		SAY NAME1 @2207
@@ -129,7 +129,7 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 	COPY_EXISTING c4IK2SBX.spl ~override/c4IK2SBY.spl~
 		LPF ALTER_EFFECT INT_VAR opcode=172 END
 		
-	//∂‘ª∞
+	//ÂØπËØù
 	OUTER_FOR (BN=1;BN<5;++BN) BEGIN
 		OUTER_FOR (SN=1;SN<7;++SN) BEGIN
 			COPY ~.../c4_inlined/blank.baf~ ~%workspace%/beastmaster/c4IK2B%BN%%SN%.d~
@@ -150,7 +150,7 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 		COMPILE ~%BASH_FOR_FILESPEC%~
 	END
 	
-	//–‹Ω≈±æ	
+	//ÁÜäËÑöÊú¨	
 	OUTER_FOR (BN=1;BN<5;++BN) BEGIN
 		OUTER_FOR (SN=1;SN<7;++SN) BEGIN
 			COPY ~%com_root%/baf/bear_base.baf~ ~%workspace%/beastmaster/c4IK2B%BN%%SN%.baf~
@@ -173,7 +173,7 @@ DEFINE_ACTION_FUNCTION BeastMaster BEGIN
 		COMPILE ~%BASH_FOR_FILESPEC%~
 	END
 
-	//’ŸªΩ∫Õ“∆∂Ø
+	//Âè¨Âî§ÂíåÁßªÂä®
 	LAF create_observer STR_VAR name=c4IK2 conditions=~Kit(Player%slot%,BEASTMASTER)~ END
 	
 	OUTER_FOR (PN=1;PN<7;++PN) BEGIN	
